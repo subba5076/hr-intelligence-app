@@ -1,0 +1,15 @@
+# Non-secret configuration for the backend. Secrets (DB password, OpenAI
+# key) live in secret.yaml.example instead -- never put those here.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hrapp-config
+  namespace: hr-intelligence
+data:
+  APP_ENV: "production"
+  LOG_LEVEL: "INFO"
+  ALLOWED_ORIGINS: "https://hrapp.example.com"
+  LLM_PROVIDER: "openai"
+  HR_DOCS_DIR: "../data/hr_docs"
+  FAISS_INDEX_DIR: "./storage/faiss_index"
+  EMBEDDING_MODEL: "sentence-transformers/all-MiniLM-L6-v2"

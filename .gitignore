@@ -1,0 +1,29 @@
+# Root-level .env used by docker-compose.yml for LLM provider keys.
+# (backend/ and frontend/ also have their own .gitignore for their own .env files.)
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+venv/
+.venv/
+
+# Node
+node_modules/
+dist/
+
+# Backend build artifacts (FAISS index, uploaded docs get written here at
+# runtime -- data/hr_docs/*.md sample docs ARE tracked, this only excludes
+# the generated vector index)
+backend/storage/
+*.db
+*.db-journal
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

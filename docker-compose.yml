@@ -1,0 +1,67 @@
+# Local development stack: Postgres + FastAPI backend + React frontend.
+#
+# Usage:
+#   docker compose up --build
+#   (in a separate shell, once, to build the FAISS index)
+#   docker compose exec backend python scripts/ingest_docs.py
+#
+# Then open http://localhost:5173
+#
+# To use a real LLM instead of the free local mock, create a `.env` file
+# in this same folder (next to this file, NOT backend/.env) with e.g.:
+#   LLM_PROVIDER=groq
+#   GROQ_API_KEY=gsk_...
+# Docker Compose reads that file automatically and fills in the ${...}
+# placeholders below -- no need to edit this file or rebuild the image.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: hrapp
+      POSTGRES_PASSWORD: hrapp_password
+      POSTGRES_DB: hrapp
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hrapp"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_ENV: development
+      DATABASE_URL: postgresql://hrapp:hrapp_password@postgres:5432/hrapp
+      ALLOWED_ORIGINS: http://localhost:5173
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}   # mock (free/local) | groq (free tier) | openai (paid)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+      HR_DOCS_DIR: ../data/hr_docs
+      FAISS_INDEX_DIR: ./storage/faiss_index
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount source for live reload in dev, and share the FAISS index +
+      # HR docs so `docker compose exec backend python scripts/ingest_docs.py`
+      # persists the index across restarts.
+      - ./backend:/app
+      - ./data:/data
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+
+volumes:
+  postgres_data:

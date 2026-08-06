@@ -1,0 +1,61 @@
+# Backend Deployment: runs the FastAPI + RAG pipeline container.
+#
+# Notes:
+# - `image` uses a placeholder registry/tag -- the GitHub Actions workflow
+#   (.github/workflows/ci-cd.yml) replaces this with the real ACR image
+#   and tag (git SHA) on every deploy, so this file is really a template.
+# - Liveness/readiness probes hit the same endpoints defined in
+#   backend/app/api/routes/health.py.
+# - Resource requests/limits matter for the HPA (backend-hpa.yaml) to make
+#   correct scaling decisions based on actual CPU usage.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: hr-intelligence
+  labels:
+    app: backend
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0    # never drop below `replicas` during a deploy
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: <ACR_LOGIN_SERVER>/hrapp-backend:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: hrapp-config
+            - secretRef:
+                name: hrapp-secrets
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
