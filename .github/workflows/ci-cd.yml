@@ -84,7 +84,14 @@ jobs:
   # ---- Build & push images, then rolling-deploy to AKS ----
   build-and-deploy:
     needs: [backend-test, frontend-build]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # Skips (rather than fails) until the Azure/ACR/AKS secrets below are
+    # added in Settings -> Secrets and variables -> Actions; resumes
+    # automatically once they're all set.
+    if: >-
+      github.ref == 'refs/heads/main' && github.event_name == 'push' &&
+      secrets.ACR_LOGIN_SERVER != '' && secrets.ACR_USERNAME != '' &&
+      secrets.ACR_PASSWORD != '' && secrets.AZURE_CREDENTIALS != '' &&
+      secrets.AKS_CLUSTER_NAME != '' && secrets.AKS_RESOURCE_GROUP != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
