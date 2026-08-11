@@ -109,7 +109,7 @@ Re-uploading a file with the same name updates its entry rather than duplicating
 still use `python scripts/ingest_docs.py` for bulk/offline ingestion (e.g. re-indexing everything
 from scratch) -- the upload button is the fast path for adding one document at a time.
 
-**One limitation worth knowing**: this in-memory-index approach works cleanly for a single
+**limitation**: this in-memory-index approach works cleanly for a single
 backend process (which is what local dev and `docker-compose` both run). If you later deploy to
 Kubernetes with multiple pods/replicas (see `k8s/backend-deployment.yaml`, `replicas: 2`), an
 upload updates the index on disk and in the pod that received the request, but *other* replicas
