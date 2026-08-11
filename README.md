@@ -4,10 +4,6 @@ A full-stack conversational RAG (Retrieval-Augmented Generation) app that lets e
 questions about HR policy, onboarding, and benefits in plain English, and get answers grounded
 in your actual HR documents.
 
-This project was built to match, line for line, the resume bullet points below -- every piece
-of tech named there has real, working code behind it in this repo. See
-[RESUME_MAPPING.md](./RESUME_MAPPING.md) for the exact file-by-file breakdown (useful if you
-need to explain this project in an interview).
 
 ## What's actually running
 
