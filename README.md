@@ -115,8 +115,7 @@ Kubernetes with multiple pods/replicas (see `k8s/backend-deployment.yaml`, `repl
 upload updates the index on disk and in the pod that received the request, but *other* replicas
 keep serving from their own in-memory copy until they restart or you add a mechanism to broadcast
 the update. For a real multi-replica production setup, the next step would be a shared vector
-store (e.g. pgvector or a managed vector DB) instead of a per-pod FAISS file -- worth mentioning
-if this comes up in an interview as "here's what I'd change to make it horizontally scalable."
+store (e.g. pgvector or a managed vector DB) instead of a per-pod FAISS file "
 
 ## Project layout
 
